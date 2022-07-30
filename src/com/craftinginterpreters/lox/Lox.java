@@ -41,7 +41,24 @@ public class Lox {
             System.out.print("> ");
             String line = reader.readLine();
             if (line == null) break;
-            run(line);
+
+            // This is a *very* dirty solution to the first challenge at the end of chapter 8. Scanning and parsing is
+            // now done twice (not that much of a performance problem because it's always only one line) and if the
+            // first statement is an expression, "print " is added to the line. This works for all my tests and keeps
+            // all modified code within this runPrompt() function, but feels wrong.
+            Scanner scanner = new Scanner(line);
+            List<Token> tokens = scanner.scanTokens();
+            Parser parser = new Parser(tokens);
+            List<Stmt> statements = parser.parse();
+            if(statements.size() > 0) {
+                if(statements.get(0) instanceof Stmt.Expression) {
+                    line = "print " + line;
+                }
+            }
+
+            if(!hadError) {
+                run(line);
+            }
             hadError = false;
         }
     }
